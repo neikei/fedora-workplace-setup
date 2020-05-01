@@ -1,0 +1,175 @@
+##################################################
+### Fedora workplace setup
+- hosts: localhost
+  become: yes
+
+  ### Configuration
+  vars:
+    dnf_packages:
+      - chromium
+      - geary
+      - git
+      - gnome-tweaks
+      - keepassxc
+      - lsof
+      - nmap
+      - nmon
+      - tree
+      - vagrant
+      - vim
+#      - pdfsam # Not available
+    snap_packages:
+      - name: "spotify"
+        classic: "no"
+      - name: "signal-desktop"
+        classic: "no"
+      - name: "code"
+        classic: "yes"
+      - name: "sublime-text"
+        classic: "yes"
+    unneeded_packages:
+      - ""
+    install_docker: true
+    install_vbox: false # Missing repo for Fedora 32
+
+  ### Installation
+  tasks:
+    - name: "start | Debug"
+      debug:
+        msg: "Starting fedora-workplace-setup..."
+
+    # Cleanup
+    - name: "package | Remove unneeded packages"
+      package:
+        name: "{{ unneeded_packages }}"
+        state: absent
+
+    # dnf
+    - name: "dnf | Upgrade all packages"
+      dnf:
+        name: "*"
+        state: latest
+        update_cache: yes
+
+    - name: "dnf | Install dnf packages"
+      dnf:
+        name: "{{ dnf_packages }}"
+        state: latest
+      when:
+        - dnf_packages is defined
+        - dnf_packages|length|int >=1
+        - dnf_packages[0]|length|int >= 1
+
+    # Snap
+    - name: "snap | Prepare snap and install packages"
+      block:
+        - name: "snap | Install snap"
+          dnf:
+            name: snapd
+            state: present
+
+        - name: "snap | Start and enable snap systemd config"
+          service:
+            name: snapd
+            state: started
+            enabled: yes
+
+        - name: "snap | Create softlink for /snap"
+          file:
+            src: "/var/lib/snapd/snap"
+            dest: "/snap"
+            state: link
+
+        - name: "snap | Install snap packages"
+          snap:
+            name: "{{ item.name }}"
+            classic: "{{ item.classic }}"
+            state: present
+          with_items:
+            - "{{ snap_packages }}"
+
+      when:
+        - snap_packages is defined
+        - snap_packages|length|int >= 1
+        - snap_packages[0]|length|int >= 1
+
+    # Docker
+    - name: "docker | Install and configure docker"
+      block:
+        - name: "docker | Install docker packages"
+          dnf:
+            name:
+              - docker
+              - docker-compose
+            state: latest
+
+        - name: "docker | Start and enable docker systemd config"
+          service:
+            name: docker
+            enabled: yes
+
+        - name: "docker | Get username"
+          become: no
+          shell: "whoami"
+          register: username
+          changed_when: false
+
+        - name: "docker | Add user to docker group"
+          user:
+            name: "{{ username.stdout }}"
+            groups: docker
+            append: true
+
+      when:
+        - install_docker is defined
+        - install_docker
+
+    # Virtualbox
+    - name: "vbox | Install an configure Virtualbox"
+      block:
+        - name: "vbox | Add additional repo"
+          get_url:
+            url: "http://download.virtualbox.org/virtualbox/rpm/fedora/virtualbox.repo"
+            dest: "/etc/yum.repos.d/"
+
+        - name: "vbox | Install Virtualbox"
+          dnf:
+            name: virtualbox
+            state: present
+            update_cache: yes
+
+      when:
+        - install_vbox is defined
+        - install_vbox
+
+    # Further tasks
+    - name: "inputrc | Configure page up and down for history search"
+      lineinfile:
+        path: "~/.inputrc"
+        line: "{{ item }}"
+        create: yes
+      with_items:
+        - '"\e[5~": history-search-backward'
+        - '"\e[6~": history-search-forward'
+
+    - name: "timesyncd | Start and enable systemd-timesyncd"
+      systemd:
+        name: "systemd-timesyncd"
+        state: started
+        enabled: yes
+
+    - name: "gnome | Get button layout"
+      become: no
+      shell: gsettings get org.gnome.desktop.wm.preferences button-layout
+      register: gnome_button_layout
+      changed_when: false
+
+    - name: "gnome | Set button layout"
+      become: no
+      shell: gsettings set org.gnome.desktop.wm.preferences button-layout ":minimize,maximize,close"
+      when: '":minimize,maximize,close" not in gnome_button_layout.stdout'
+
+    # Final
+    - name: "final | Debug"
+      debug:
+        msg: "Finished fedora-workplace-setup. Reboot your system to use all new tools."
