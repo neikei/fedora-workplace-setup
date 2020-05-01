@@ -14,6 +14,7 @@
       - lsof
       - nmap
       - nmon
+      - podman
       - tree
       - vagrant
       - vim
@@ -29,7 +30,6 @@
         classic: "yes"
     unneeded_packages:
       - ""
-    install_docker: true
     install_vbox: false # Missing repo for Fedora 32
 
   ### Installation
@@ -92,37 +92,6 @@
         - snap_packages is defined
         - snap_packages|length|int >= 1
         - snap_packages[0]|length|int >= 1
-
-    # Docker
-    - name: "docker | Install and configure docker"
-      block:
-        - name: "docker | Install docker packages"
-          dnf:
-            name:
-              - docker
-              - docker-compose
-            state: latest
-
-        - name: "docker | Start and enable docker systemd config"
-          service:
-            name: docker
-            enabled: yes
-
-        - name: "docker | Get username"
-          become: no
-          shell: "whoami"
-          register: username
-          changed_when: false
-
-        - name: "docker | Add user to docker group"
-          user:
-            name: "{{ username.stdout }}"
-            groups: docker
-            append: true
-
-      when:
-        - install_docker is defined
-        - install_docker
 
     # Virtualbox
     - name: "vbox | Install an configure Virtualbox"
