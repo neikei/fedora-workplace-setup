@@ -42,6 +42,5 @@ ansible-playbook install.yml --ask-become-pass
         classic: "yes"
     unneeded_packages:
       - ""
-    install_docker: true
     install_vbox: false # Missing repo for Fedora 32
 ```
