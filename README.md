@@ -27,10 +27,10 @@ ansible-playbook install.yml --ask-become-pass
       - lsof
       - nmap
       - nmon
+      - podman
       - tree
       - vagrant
       - vim
-#      - pdfsam # Not available
     snap_packages:
       - name: "spotify"
         classic: "no"
@@ -40,6 +40,8 @@ ansible-playbook install.yml --ask-become-pass
         classic: "yes"
       - name: "sublime-text"
         classic: "yes"
+      - name: "snap-store"
+        classic: no
     unneeded_packages:
       - ""
     install_vbox: false # Missing repo for Fedora 32
