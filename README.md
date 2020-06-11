@@ -41,8 +41,8 @@ ansible-playbook install.yml --ask-become-pass
       - name: "sublime-text"
         classic: "yes"
       - name: "snap-store"
-        classic: no
+        classic: "no"
     unneeded_packages:
       - ""
-    install_vbox: false # Missing repo for Fedora 32
+    install_vbox: "6.1" # "no" or version like "6.1"
 ```

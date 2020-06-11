@@ -28,10 +28,10 @@
       - name: "sublime-text"
         classic: "yes"
       - name: "snap-store"
-        classic: no
+        classic: "no"
     unneeded_packages:
       - ""
-    install_vbox: false # Missing repo for Fedora 32
+    install_vbox: "6.1" # "no" or version like "6.1"
 
   ### Installation
   tasks:
@@ -102,15 +102,20 @@
             url: "http://download.virtualbox.org/virtualbox/rpm/fedora/virtualbox.repo"
             dest: "/etc/yum.repos.d/"
 
-        - name: "vbox | Install Virtualbox"
+        - name: "vbox | Install VirtualBox"
           dnf:
-            name: virtualbox
+            name:
+              - "@development-tools"
+              - "kernel-devel"
+              - "kernel-headers"
+              - "dkms" 
+              - "VirtualBox-{{ install_vbox }}"
             state: present
             update_cache: yes
 
       when:
         - install_vbox is defined
-        - install_vbox
+        - install_vbox|int >= 6
 
     # Further tasks
     - name: "inputrc | Configure page up and down for history search"
