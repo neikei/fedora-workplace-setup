@@ -23,7 +23,7 @@
         classic: "no"
       - name: "signal-desktop"
         classic: "no"
-      - name: "code"
+      - name: "codium"
         classic: "yes"
       - name: "sublime-text"
         classic: "yes"
