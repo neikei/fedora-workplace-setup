@@ -18,6 +18,7 @@
       - tree
       - vagrant
       - vim
+      - htop
     snap_packages:
       - name: "spotify"
         classic: "no"
@@ -31,7 +32,7 @@
         classic: "no"
     unneeded_packages:
       - ""
-    install_vbox: "no" # "no" or version like "6.1" # vbox not released for Fedora 33 yet
+    install_vbox: "no" # "no" or version like "6.1"
 
   ### Installation
   tasks:

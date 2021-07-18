@@ -23,6 +23,7 @@ ansible-playbook install.yml --ask-become-pass
       - geary
       - git
       - gnome-tweaks
+      - htop
       - keepassxc
       - lsof
       - nmap
@@ -36,7 +37,7 @@ ansible-playbook install.yml --ask-become-pass
         classic: "no"
       - name: "signal-desktop"
         classic: "no"
-      - name: "code"
+      - name: "codium"
         classic: "yes"
       - name: "sublime-text"
         classic: "yes"
@@ -44,5 +45,5 @@ ansible-playbook install.yml --ask-become-pass
         classic: "no"
     unneeded_packages:
       - ""
-    install_vbox: "6.1" # "no" or version like "6.1"
+    install_vbox: "no" # "no" or version like "6.1"
 ```
