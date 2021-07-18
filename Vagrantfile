@@ -13,5 +13,5 @@ Vagrant.configure("2") do |config|
         inline: $script
 
     # Post-up message
-    config.vm.post_up_message = "See https://github.com/neikei/data-playground for help and bug reports."
+    config.vm.post_up_message = "See https://github.com/neikei/fedora-workplace-setup for help and bug reports."
 end
